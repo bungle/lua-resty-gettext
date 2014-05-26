@@ -13,7 +13,7 @@ extern char *textdomain (const char *__domainname);
 extern char *bindtextdomain (const char *__domainname, const char *__dirname);
 extern char *bind_textdomain_codeset (const char *__domainname, const char *__codeset);
 ]]
-local gt = ffi_load("/usr/local/opt/gettext/lib/libintl.dylib")
+local gt = ffi_load("libintl")
 local gettext = setmetatable({}, { __call = function(self, msgid)
     return self.gettext(msgid)
 end })
