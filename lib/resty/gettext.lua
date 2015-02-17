@@ -2,6 +2,7 @@ local ffi      = require "ffi"
 local ffi_cdef = ffi.cdef
 local ffi_str  = ffi.string
 local ffi_load = ffi.load
+local C        = ffi.C
 local bit      = require("bit")
 local rshift   = bit.rshift
 local band     = bit.band
