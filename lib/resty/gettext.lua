@@ -18,9 +18,11 @@ char *textdomain(const char *__domainname);
 char *bindtextdomain(const char *__domainname, const char *__dirname);
 char *bind_textdomain_codeset(const char *__domainname, const char *__codeset);
 ]]
-local ok, lib = pcall(ffi_load, "gettextlib")
-if not ok then
-    ok, lib = pcall(ffi_load, "intl")
+local ok, lib = pcall(ffi_load, "intl")
+if ok then
+    gettext.version = rshift(lib.libintl_version, 16) .. "." .. rshift(lib.libintl_version, 8) .. "." .. band(lib.libintl_version, 0xFF)
+else
+    ok, lib = pcall(ffi_load, "gettextlib")
     assert(ok, "Unable to load gettext library. Please check that the gettext shared library is in a default search path for dynamic libraries of your operating system.")
 end
 local gettext = setmetatable({}, { __call = function(self, ...)
@@ -58,5 +60,4 @@ end
 function gettext.bind_textdomain_codeset(domainname, codeset)
     return ffi_str(lib.bind_textdomain_codeset(domainname, codeset));
 end
-gettext.version = rshift(lib.libintl_version, 16) .. "." .. rshift(lib.libintl_version, 8) .. "." .. band(lib.libintl_version, 0xFF)
 return gettext
