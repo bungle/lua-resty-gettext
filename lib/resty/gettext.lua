@@ -23,7 +23,9 @@ if ok then
     gettext.version = rshift(lib.libintl_version, 16) .. "." .. rshift(lib.libintl_version, 8) .. "." .. band(lib.libintl_version, 0xFF)
 else
     ok, lib = pcall(ffi_load, "gettextlib")
-    assert(ok, "Unable to load gettext library. Please check that the gettext shared library is in a default search path for dynamic libraries of your operating system.")
+    if not ok then
+        lib = C
+    end
 end
 local gettext = setmetatable({}, { __call = function(self, ...)
     local argc = select('#', ...)
