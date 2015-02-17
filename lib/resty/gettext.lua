@@ -1,14 +1,11 @@
-local ffi      = require "ffi"
-local ffi_cdef = ffi.cdef
-local ffi_str  = ffi.string
-local ffi_load = ffi.load
-local C        = ffi.C
-local bit      = require("bit")
-local rshift   = bit.rshift
-local band     = bit.band
-local pcall    = pcall
+local setmetatable = setmetatable
+local ffi          = require "ffi"
+local ffi_cdef     = ffi.cdef
+local ffi_str      = ffi.string
+local ffi_load     = ffi.load
+local C            = ffi.C
+local pcall        = pcall
 ffi_cdef[[
-int libintl_version;
 char *gettext(const char *__msgid);
 char *dgettext(const char *__domainname, const char *__msgid);
 char *dcgettext(const char *__domainname, const char *__msgid, int __category);
@@ -19,23 +16,25 @@ char *textdomain(const char *__domainname);
 char *bindtextdomain(const char *__domainname, const char *__dirname);
 char *bind_textdomain_codeset(const char *__domainname, const char *__codeset);
 ]]
+local ok, newtab = pcall(require, "table.new")
+if not ok then newtab = function() return {} end end
+local gettext = newtab(0, 9)
+local mt = newtab(0, 1)
 local ok, lib = pcall(ffi_load, "intl")
-if ok then
-    gettext.version = rshift(lib.libintl_version, 16) .. "." .. rshift(lib.libintl_version, 8) .. "." .. band(lib.libintl_version, 0xFF)
-else
+if not ok then
     ok, lib = pcall(ffi_load, "gettextlib")
     if not ok then
         lib = C
     end
 end
-local gettext = setmetatable({}, { __call = function(self, ...)
+function mt.__call(self, ...)
     local argc = select('#', ...)
     if argc == 1 then return self.gettext(...)    end
     if argc == 2 then return self.dgettext(...)   end
     if argc == 3 then return self.ngettext(...)   end
     if argc == 4 then return self.dngettext(...)  end
     return nil
-end })
+end
 function gettext.gettext(msgid)
     return ffi_str(lib.gettext(msgid));
 end
@@ -63,4 +62,4 @@ end
 function gettext.bind_textdomain_codeset(domainname, codeset)
     return ffi_str(lib.bind_textdomain_codeset(domainname, codeset));
 end
-return gettext
+return setmetatable(gettext, mt)
