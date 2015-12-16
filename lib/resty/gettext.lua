@@ -5,6 +5,7 @@ local ffi_str      = ffi.string
 local ffi_load     = ffi.load
 local C            = ffi.C
 local pcall        = pcall
+local select       = select
 ffi_cdef[[
 char *gettext(const char *__msgid);
 char *dgettext(const char *__domainname, const char *__msgid);
@@ -29,10 +30,10 @@ if not ok then
 end
 function mt.__call(self, ...)
     local argc = select('#', ...)
-    if argc == 1 then return self.gettext(...)    end
-    if argc == 2 then return self.dgettext(...)   end
-    if argc == 3 then return self.ngettext(...)   end
-    if argc == 4 then return self.dngettext(...)  end
+    if argc == 1 then return self.gettext(...)   end
+    if argc == 2 then return self.dgettext(...)  end
+    if argc == 3 then return self.ngettext(...)  end
+    if argc == 4 then return self.dngettext(...) end
     return nil
 end
 function gettext.gettext(msgid)
